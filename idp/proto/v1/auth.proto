@@ -1,0 +1,87 @@
+syntax = "proto3";
+
+package auth;
+
+enum AuthState {
+    SUCCESS = 0;
+    FAILURE = 1;
+    USER_SIGNED_UP = 2;
+    USER_SIGNED_IN = 3;
+    USER_SIGNED_OUT = 4;
+}
+
+message Credentials {
+    string username = 1;
+    string password = 2;
+}
+
+message SignUpRequest {
+    Credentials credentials = 1;
+}
+
+message SignInRequest {
+    oneof auth {
+        Credentials credentials = 1;
+        string refresh_token = 2;
+    }
+}
+
+message SignOutRequest {
+    string refresh_token = 1;
+}
+
+message SignOutResponse {
+    AuthState state = 1;
+}
+
+message ResetPasswordRequest {
+    string refresh_token = 1;
+    string new_password = 2;
+}
+
+message ResetPasswordRespone {
+    string access_token = 1;
+    string refresh_token = 2;
+}
+
+message VerifyEmailRequest {
+    string refresh_token = 1;
+    string email = 2;
+}
+
+message VerifyEmailRespone {
+    string access_token = 1;
+    string refresh_token = 2;
+}
+
+message UserInfoResponse {
+    string username = 1;
+    string email = 2;
+    string name = 3;
+    string given_name = 4;
+    string family_name = 5;
+    oneof picture {
+        bytes data = 6;
+        string uri = 7;
+    }
+}
+
+message AuthSession {
+    AuthState state = 1;
+    string access_token = 2;
+    string refresh_token = 3;
+    UserInfoResponse user_info = 4;
+}
+
+service AuthService {
+    rpc Signup (SignUpRequest) returns (stream AuthSession) {
+    }
+    rpc Signin (SignInRequest) returns (stream AuthSession) {
+    }
+    rpc Signout (SignOutRequest) returns (SignOutResponse) {
+    }
+    /*rpc ResetPassword (ResetPasswordRequest) returns (google.protobuf.Empty) {
+    }
+    rpc VerifyEmail (VerifyEmailRequest) returns (google.protobuf.Empty) {
+    }*/
+}
